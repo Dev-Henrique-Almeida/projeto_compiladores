@@ -1,0 +1,58 @@
+0. Inicialização do programa, com a variável inicial
+<programa> ::= { <declaracao_comando> }
+<declaracao_comando> ::= <declaracao_variaveis> | <declaracao_procedimento> | <declaracao_funcao> | <comando_atribuicao> 
+| <chamada_procedimento> | <chamada_funcao> | <comando_condicional> | <comando_laco> | <comando_impressao>
+
+1. Declaração de Variáveis de Tipo Inteiro e Booleano
+<declaracao_variaveis> ::= <tipo> <lista_identificadores> ;
+<lista_identificadores> ::= <identificador> { , <identificador> }
+<tipo> ::= int | bool
+
+2. Declaração de Procedimentos e Funções
+<declaracao_procedimento> ::= void <identificador> ( [<lista_parametros>] ) <bloco>
+<declaracao_funcao> ::= <tipo> <identificador> ( [<lista_parametros>] ) <bloco>
+<lista_parametros> ::= <parametro> { , <parametro> }
+<parametro> ::= <tipo> <identificador>
+<bloco> ::= /{ { <declaracao_comandos> } {<comando_retorno>} /}
+
+3. Comandos de Atribuição
+<comando_atribuicao> ::= <identificador> = ( <expressao> | <identificador> | <chamada_funcao> ) ;
+
+4. Chamada de Procedimentos e Funções
+<chamada_procedimento> ::= prc <identificador> ( [<lista_argumentos>] ) ;
+<chamada_funcao> ::= fun <identificador> ( [<lista_argumentos>] ) ;
+<lista_argumentos> ::= <expressao> { , <expressao> }
+
+5. Comando de Desvio Condicional (if e else)
+<comando_condicional> ::= if ( <expressao_booleana> ) <bloco> [else <bloco>]
+
+6. Comando de Laço (while)
+<comando_laco> ::= while ( <expressao_booleana> ) <bloco>
+
+7. Comando de Retorno de Valor
+<comando_retorno> ::= return <expressao> ;
+
+8. Comandos de Desvio Incondicional (break e continue)
+<comando_desvio> ::= break ; | continue ;
+
+9. Comando de Impressão de Constante e Variável na Tela
+<comando_impressao> ::= print (<expressao> | <chamada_funcao>) ;
+
+10. Expressão Básica
+<expressao> ::= ( <expressao_aritmetica> | <expressao_booleana> )
+
+11. Expressões Aritméticas (+, -, * e /)
+<expressao_aritmetica> ::= <termo> { (+ | -) <termo> }
+<termo> ::= <fator> { (* | /) <fator> }
+<fator> ::= ( <variavel> | <numero> | true | false | not )
+<variavel> ::= <identificador>
+
+12. Expressões Booleanas (==, !=, >, >=, < e <=)
+<expressao_booleana> ::= <expressao_aritmetica> <operador_relacional> <expressao_aritmetica>
+<operador_relacional> ::= ( == | != | > | >= | < | <= )
+
+13. Identificadores e Números
+<identificador> ::= <letra> {<letra> | <digito> | _ }
+<numero> ::= <digito> {<digito>}
+<digito> ::= (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9)
+<letra> ::= (a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z)
