@@ -1,0 +1,36 @@
+int a, b;
+bool c;
+
+a = 1;
+
+c = true;
+
+funcao int ( int a) {
+    int c;
+    c = a + 1;
+    return c;
+}
+
+procedimento void ( int a) {
+    int c;
+    c = a + 1;
+    print(c);
+}
+
+proc procedimento(a, b);
+
+if (c == true) {
+
+    b = fun (funcao());
+
+    print(b);
+}
+
+while (c == true){
+    b = b + 1;
+    
+    if (b <= 5) {
+        break;
+    }
+
+}

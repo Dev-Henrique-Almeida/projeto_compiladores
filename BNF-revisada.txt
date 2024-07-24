@@ -10,21 +10,22 @@
 
 2. Declaração de Procedimentos e Funções
 <declaracao_procedimento> ::= "void" <identificador> "(" [<lista_parametros>] ")" <bloco>
-<declaracao_funcao> ::= <tipo> <identificador> "(" [<lista_parametros>] ")" <bloco>
+<declaracao_funcao> ::= <tipo> <identificador> "(" [<lista_parametros>] ")" <bloco_retorno>
 <lista_parametros> ::= <parametro> { "," <parametro> }
 <parametro> ::= <tipo> <identificador>
-<bloco> ::= "{" { <declaracao_comando> } { <comando_retorno> } "}"
+<bloco_retorno> ::= "{" { <declaracao_comando> } "}"
+<bloco> ::= "{" { <declaracao_comando> } "}"
 
 3. Comandos de Atribuição
 <comando_atribuicao> ::= <identificador> "=" ( <expressao> | <chamada_funcao> ) ";"
 
 4. Chamada de Procedimentos e Funções
-<chamada_procedimento> ::= "prc" <identificador> "(" [<lista_argumentos>] ");"
-<chamada_funcao> ::= "fun" <identificador> "(" [<lista_argumentos>] ");"
+<chamada_procedimento> ::= "prc" <identificador> "(" [<lista_argumentos>] ")" ";"
+<chamada_funcao> ::= "fun" <identificador> "(" [<lista_argumentos>] ")" ";"
 <lista_argumentos> ::= <expressao> { "," <expressao> }
 
 5. Comando de Desvio Condicional (if e else)
-<comando_condicional> ::= "if(" <expressao_booleana> ")" <bloco> ["else" <bloco>]
+<comando_condicional> ::= "if" "(" <expressao_booleana> ")" <bloco> ["else" <bloco>]
 
 6. Comando de Laço (while)
 <comando_laco> ::= "while" "(" <expressao_booleana> ")" <bloco>
@@ -36,7 +37,7 @@
 <comando_desvio> ::= ("break" | "continue") ";"
 
 9. Comando de Impressão de Constante e Variável na Tela
-<comando_impressao> ::= "print(" <expressao> | <chamada_funcao> ");"
+<comando_impressao> ::= "print" "(" <expressao> | <chamada_funcao> ")" ";"
 
 10. Expressão Básica
 <expressao> ::= ( <expressao_aritmetica> | <expressao_booleana> )
@@ -63,5 +64,5 @@
 | "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z" )
 
 
-<expressao_booleana> ::= <expressao_aritmetica> <operador_relacional> <expressao_aritmetica>
-<operador_relacional> ::= ( "==" | "!=" | ">" | ">=" | "<" | "<=" )
+//<expressao_booleana> ::= <expressao_aritmetica> <operador_relacional> <expressao_aritmetica>
+//<operador_relacional> ::= ( "==" | "!=" | ">" | ">=" | "<" | "<=" )
