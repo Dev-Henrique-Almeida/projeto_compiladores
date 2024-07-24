@@ -13,10 +13,10 @@
 <declaracao_funcao> ::= <tipo> <identificador> "(" [<lista_parametros>] ")" <bloco>
 <lista_parametros> ::= <parametro> { "," <parametro> }
 <parametro> ::= <tipo> <identificador>
-<bloco> ::= "{" { <declaracao_comandos> } {<comando_retorno>} "}"
+<bloco> ::= "{" { <declaracao_comando> } { <comando_retorno> } "}"
 
 3. Comandos de Atribuição
-<comando_atribuicao> ::= <identificador> "=" ( <expressao> | <identificador> | <chamada_funcao> ) ";"
+<comando_atribuicao> ::= <identificador> "=" ( <expressao> | <chamada_funcao> ) ";"
 
 4. Chamada de Procedimentos e Funções
 <chamada_procedimento> ::= "prc" <identificador> "(" [<lista_argumentos>] ");"
@@ -44,11 +44,15 @@
 11. Expressões Aritméticas (+, -, * e /)
 <expressao_aritmetica> ::= <termo> { ("+" | "-") <termo> }
 <termo> ::= <fator> { ("*" | "/") <fator> }
-<fator> ::= ( <variavel> | <numero> | "true" | "false" | "not" )
+<fator> ::= ( <variavel> | <numero> )
 <variavel> ::= <identificador>
 
 12. Expressões Booleanas (==, !=, >, >=, < e <=)
-<expressao_booleana> ::= <expressao_aritmetica> <operador_relacional> <expressao_aritmetica>
+
+<expressao_booleana> ::= <termo_booleana> { <operador_logico> <termo_booleana> }
+<termo_booleana> ::= <fator_booleana> { <operador_relacional> <fator_booleana> }
+<fator_booleana> ::= ( <variavel> | <numero> | "true" | "false" | "not" ) 
+<operador_logico> ::= ( "&&" | "||" )
 <operador_relacional> ::= ( "==" | "!=" | ">" | ">=" | "<" | "<=" )
 
 13. Identificadores e Números
@@ -57,3 +61,7 @@
 <digito> ::= ( "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" )
 <letra> ::= ( "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" 
 | "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z" )
+
+
+<expressao_booleana> ::= <expressao_aritmetica> <operador_relacional> <expressao_aritmetica>
+<operador_relacional> ::= ( "==" | "!=" | ">" | ">=" | "<" | "<=" )
