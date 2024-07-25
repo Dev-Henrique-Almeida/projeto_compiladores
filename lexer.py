@@ -1,7 +1,6 @@
 import re
 from typing import Any, Dict, List
 
-# Classe para representar um token
 class Token:
     def __init__(self, token_type: str, value: str, line: int, column: int):
         self.token_type = token_type
@@ -11,8 +10,7 @@ class Token:
 
     def __repr__(self):
         return f"Token({self.token_type}, '{self.value}', line={self.line}, column={self.column})"
-
-# Classe para a tabela de símbolos
+    
 class SymbolTable:
     def __init__(self):
         self.symbols: Dict[str, Dict[str, Any]] = {}
@@ -33,14 +31,13 @@ class SymbolTable:
     def __repr__(self):
         return f"SymbolTable({self.symbols})"
 
-# Classe para o lexer
 class Lexer:
     def __init__(self, code: str):
         self.code = code
         self.current_line = 1
         self.tokens: List[Token] = []
         self.symbol_table = SymbolTable()
-        # Definição dos tokens e suas expressões regulares correspondentes
+        # Definição dos tokens e suas expressões regulares correspondentes, sujeito a mudanças
         self.token_specification = [
             ('ASSIGN', r'='),                     # Atribuição
             ('SEMICOLON', r';'),                  # Ponto e vírgula
@@ -123,7 +120,7 @@ class Lexer:
         for name, attributes in self.symbol_table.symbols.items():
             print(f"{name}: {attributes}")
 
-# Exemplo de uso
+# Exemplo de uso para rodar sem precisar do main
 if __name__ == '__main__':
     code = '''
     int x, y, inteiro, elsewhen;
