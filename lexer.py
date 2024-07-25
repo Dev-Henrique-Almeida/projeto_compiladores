@@ -59,24 +59,24 @@ class Lexer:
             ('LE', r'<='),                        # Menor ou igual
             ('AND', r'&&'),                       # E lógico
             ('OR', r'\|\|'),                      # Ou lógico
-            ('NOT', r'not'),                      # Negação lógica
-            ('IF', r'if'),                        # Palavra-chave if
-            ('ELSE', r'else'),                    # Palavra-chave else
-            ('WHILE', r'while'),                  # Palavra-chave while
-            ('RETURN', r'return'),                # Palavra-chave return
-            ('PRINT', r'print'),                  # Palavra-chave print
-            ('VOID', r'void'),                    # Palavra-chave void
-            ('INT', r'int'),                      # Palavra-chave int
-            ('BOOL', r'bool'),                    # Palavra-chave bool
-            ('TRUE', r'true'),                    # Palavra-chave true
-            ('FALSE', r'false'),                  # Palavra-chave false
-            ('PROC', r'prc'),                     # Palavra-chave prc
-            ('FUNC', r'fun'),                     # Palavra-chave fun
+            ('NOT', r'\bnot\b'),                    # Negação lógica
+            ('IF', r'\bif\b'),                      # Palavra-chave if
+            ('ELSE', r'\belse\b'),                  # Palavra-chave else
+            ('WHILE', r'\bwhile\b'),                # Palavra-chave while
+            ('RETURN', r'\breturn\b'),              # Palavra-chave return
+            ('PRINT', r'\bprint\b'),                # Palavra-chave print
+            ('VOID', r'\bvoid\b'),                  # Palavra-chave void
+            ('INT', r'\bint\b'),                    # Palavra-chave int
+            ('BOOL', r'\bbool\b'),                  # Palavra-chave bool
+            ('TRUE', r'\btrue\b'),                  # Palavra-chave true
+            ('FALSE', r'\bfalse\b'),                # Palavra-chave false
+            ('PROC', r'\bprc\b'),                   # Palavra-chave prc
+            ('FUNC', r'\bfun\b'),                   # Palavra-chave fun
             ('SKIP', r'[ \t]+'),                  # Espaços e tabulações
             ('NEWLINE', r'\n'),                   # Quebras de linha
             ('NUMBER', r'\d+'),                   # Inteiros
             ('ID', r'[a-zA-Z_][a-zA-Z_0-9]*'),    # Identificadores
-            ('MISMATCH', r'.'),                   # Qualquer outro caractere
+            ('MISMATCH', r'.'),                 # Qualquer outro caractere
         ]
         self.tok_regex = '|'.join('(?P<%s>%s)' % pair for pair in self.token_specification)
         self.get_token = re.compile(self.tok_regex).match
@@ -118,7 +118,7 @@ class Lexer:
 # Exemplo de uso
 if __name__ == '__main__':
     code = '''
-    int x, y;
+    int x, y, inteiro;
     bool z;
 
     int soma(int a, int b) {
