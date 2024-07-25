@@ -3,26 +3,28 @@ from typing import Any, Dict, List
 
 # Classe para representar um token
 class Token:
-    def __init__(self, token_type: str, value: str, line: int):
+    def __init__(self, token_type: str, value: str, line: int, column: int):
         self.token_type = token_type
         self.value = value
         self.line = line
+        self.column = column
 
     def __repr__(self):
-        return f"Token({self.token_type}, '{self.value}', line={self.line})"
+        return f"Token({self.token_type}, '{self.value}', line={self.line}, column={self.column})"
 
 # Classe para a tabela de símbolos
 class SymbolTable:
     def __init__(self):
         self.symbols: Dict[str, Dict[str, Any]] = {}
 
-    def add_symbol(self, name: str, line: int):
+    def add_symbol(self, name: str, line: int, column: int):
         if name not in self.symbols:
             self.symbols[name] = {
                 "type": "undefined",
                 "value": None,
                 "scope": "global",
-                "line": line
+                "line": line,
+                "column": column
             }
 
     def get_symbol(self, name: str):
@@ -70,6 +72,8 @@ class Lexer:
             ('BOOL', r'\bbool\b'),                  # Palavra-chave bool
             ('TRUE', r'\btrue\b'),                  # Palavra-chave true
             ('FALSE', r'\bfalse\b'),                # Palavra-chave false
+            ('BREAK', r'\bbreak\b'),                # Palavra-chave break
+            ('CONTINUE', r'\bcontinue\b'),          # Palavra-chave continue
             ('PROC', r'\bprc\b'),                   # Palavra-chave prc
             ('FUNC', r'\bfun\b'),                   # Palavra-chave fun
             ('SKIP', r'[ \t]+'),                  # Espaços e tabulações
@@ -78,6 +82,7 @@ class Lexer:
             ('ID', r'[a-zA-Z_][a-zA-Z_0-9]*'),    # Identificadores
             ('MISMATCH', r'.'),                 # Qualquer outro caractere
         ]
+        #tem que ver se dá pra melhorar a diferença entre chamada de função e procedimento
         self.tok_regex = '|'.join('(?P<%s>%s)' % pair for pair in self.token_specification)
         self.get_token = re.compile(self.tok_regex).match
 
@@ -86,8 +91,11 @@ class Lexer:
         match = self.get_token(self.code)
         while match is not None:
             typ = match.lastgroup
+            start = match.start()
+            end = match.end()
+            column = start - line_start
             if typ == 'NEWLINE':
-                line_start = match.end()
+                line_start = end
                 self.current_line += 1
             elif typ == 'SKIP':
                 pass
@@ -96,14 +104,14 @@ class Lexer:
                 if val in {'int', 'bool', 'void', 'true', 'false', 'if', 'else', 'while', 'return', 'print', 'prc', 'fun'}:
                     typ = val.upper()
                 else:
-                    self.symbol_table.add_symbol(val, self.current_line)
-                self.tokens.append(Token(typ, val, self.current_line))
+                    self.symbol_table.add_symbol(val, self.current_line, column)
+                self.tokens.append(Token(typ, val, self.current_line, column))
             elif typ != 'MISMATCH':
                 val = match.group(typ)
-                self.tokens.append(Token(typ, val, self.current_line))
+                self.tokens.append(Token(typ, val, self.current_line, column))
             else:
                 raise RuntimeError(f'{match.group(typ)!r} inesperado na linha {self.current_line}')
-            match = self.get_token(self.code, match.end())
+            match = self.get_token(self.code, end)
 
     def print_tokens(self):
         print("Lista de Tokens:")
@@ -118,7 +126,7 @@ class Lexer:
 # Exemplo de uso
 if __name__ == '__main__':
     code = '''
-    int x, y, inteiro;
+    int x, y, inteiro, elsewhen;
     bool z;
 
     int soma(int a, int b) {
