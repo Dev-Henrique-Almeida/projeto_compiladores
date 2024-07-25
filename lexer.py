@@ -37,27 +37,26 @@ class Lexer:
         self.current_line = 1
         self.tokens: List[Token] = []
         self.symbol_table = SymbolTable()
-        # Definição dos tokens e suas expressões regulares correspondentes, sujeito a mudanças
         self.token_specification = [
-            ('ASSIGN', r'='),                     # Atribuição
-            ('SEMICOLON', r';'),                  # Ponto e vírgula
-            ('COMMA', r','),                      # Vírgula
-            ('LPAREN', r'\('),                    # Parêntese esquerdo
-            ('RPAREN', r'\)'),                    # Parêntese direito
-            ('LBRACE', r'\{'),                    # Chave esquerda
-            ('RBRACE', r'\}'),                    # Chave direita
-            ('PLUS', r'\+'),                      # Operador de adição
-            ('MINUS', r'-'),                      # Operador de subtração
-            ('TIMES', r'\*'),                     # Operador de multiplicação
-            ('DIVIDE', r'/'),                     # Operador de divisão
-            ('EQ', r'=='),                        # Igualdade
-            ('NE', r'!='),                        # Diferente
-            ('GT', r'>'),                         # Maior que
-            ('GE', r'>='),                        # Maior ou igual
-            ('LT', r'<'),                         # Menor que
-            ('LE', r'<='),                        # Menor ou igual
-            ('AND', r'&&'),                       # E lógico
-            ('OR', r'\|\|'),                      # Ou lógico
+            ('EQ', r'=='),                          # Igualdade
+            ('LE', r'<='),                          # Menor ou igual
+            ('GE', r'>='),                          # Maior ou igual
+            ('NE', r'!='),                          # Diferente
+            ('ASSIGN', r'='),                       # Atribuição
+            ('LT', r'<'),                           # Menor que
+            ('GT', r'>'),                           # Maior que
+            ('SEMICOLON', r';'),                    # Ponto e vírgula
+            ('COMMA', r','),                        # Vírgula
+            ('LPAREN', r'\('),                      # Parêntese esquerdo
+            ('RPAREN', r'\)'),                      # Parêntese direito
+            ('LBRACE', r'\{'),                      # Chave esquerda
+            ('RBRACE', r'\}'),                      # Chave direita
+            ('PLUS', r'\+'),                        # Operador de adição
+            ('MINUS', r'-'),                        # Operador de subtração
+            ('TIMES', r'\*'),                       # Operador de multiplicação
+            ('DIVIDE', r'/'),                       # Operador de divisão
+            ('AND', r'&&'),                         # E lógico
+            ('OR', r'\|\|'),                        # Ou lógico
             ('NOT', r'\bnot\b'),                    # Negação lógica
             ('IF', r'\bif\b'),                      # Palavra-chave if
             ('ELSE', r'\belse\b'),                  # Palavra-chave else
@@ -71,14 +70,15 @@ class Lexer:
             ('FALSE', r'\bfalse\b'),                # Palavra-chave false
             ('BREAK', r'\bbreak\b'),                # Palavra-chave break
             ('CONTINUE', r'\bcontinue\b'),          # Palavra-chave continue
-            ('PROC', r'\bprc\b'),                   # Palavra-chave prc
-            ('FUNC', r'\bfun\b'),                   # Palavra-chave fun
-            ('SKIP', r'[ \t]+'),                  # Espaços e tabulações
-            ('NEWLINE', r'\n'),                   # Quebras de linha
-            ('NUMBER', r'\d+'),                   # Inteiros
-            ('ID', r'[a-zA-Z_][a-zA-Z_0-9]*'),    # Identificadores
-            ('MISMATCH', r'.'),                 # Qualquer outro caractere
+            ('PRC', r'\bprc\b'),                    # Palavra-chave prc
+            ('FUN', r'\bfun\b'),                    # Palavra-chave fun
+            ('SKIP', r'[ \t]+'),                    # Espaços e tabulações
+            ('NEWLINE', r'\n'),                     # Quebras de linha
+            ('NUMBER', r'\d+'),                     # Inteiros
+            ('ID', r'[a-zA-Z_][a-zA-Z_0-9]*'),      # Identificadores
+            ('MISMATCH', r'.'),                     # Qualquer outro caractere
         ]
+
         #tem que ver se dá pra melhorar a diferença entre chamada de função e procedimento
         self.tok_regex = '|'.join('(?P<%s>%s)' % pair for pair in self.token_specification)
         self.get_token = re.compile(self.tok_regex).match

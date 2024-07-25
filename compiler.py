@@ -1,13 +1,12 @@
-from lexer import Lexer, SymbolTable
-
-
+from lexer import Lexer
+from parser import Parser
 
 class Compiler:
     def __init__(self, code: str):
         if not code:
             raise ValueError("Código vazio!")
         self.lexer = Lexer(code)
-        #Criação do parser
+        self.parser = None
 
     def compile(self):
         self.lexer.tokenize()
@@ -15,6 +14,9 @@ class Compiler:
         self.lexer.print_tokens()
         self.lexer.print_symbol_table()
 
-        #Chamada do parser com tokens e tabela de simbolos
+        self.parser = Parser(self.lexer.tokens)
+        self.parser.parse()
+        self.parser.print_parsing_steps()
+
 
         print("Compilação bem sucedida")
