@@ -1,0 +1,133 @@
+import re
+from typing import Any, Dict, List
+
+# Classe para representar um token
+class Token:
+    def __init__(self, token_type: str, value: str, line: int):
+        self.token_type = token_type
+        self.value = value
+        self.line = line
+
+    def __repr__(self):
+        return f"Token({self.token_type}, '{self.value}', line={self.line})"
+
+# Classe para a tabela de símbolos
+class SymbolTable:
+    def __init__(self):
+        self.symbols: Dict[str, Dict[str, Any]] = {}
+
+    def add_symbol(self, name: str, line: int):
+        if name not in self.symbols:
+            self.symbols[name] = {
+                "type": "undefined",
+                "value": None,
+                "scope": "global",
+                "line": line
+            }
+
+    def get_symbol(self, name: str):
+        return self.symbols.get(name)
+
+    def __repr__(self):
+        return f"SymbolTable({self.symbols})"
+
+# Classe para o lexer
+class Lexer:
+    def __init__(self, code: str):
+        self.code = code
+        self.current_line = 1
+        self.tokens: List[Token] = []
+        self.symbol_table = SymbolTable()
+        # Definição dos tokens e suas expressões regulares correspondentes
+        self.token_specification = [
+            ('ASSIGN', r'='),                     # Atribuição
+            ('SEMICOLON', r';'),                  # Ponto e vírgula
+            ('COMMA', r','),                      # Vírgula
+            ('LPAREN', r'\('),                    # Parêntese esquerdo
+            ('RPAREN', r'\)'),                    # Parêntese direito
+            ('LBRACE', r'\{'),                    # Chave esquerda
+            ('RBRACE', r'\}'),                    # Chave direita
+            ('PLUS', r'\+'),                      # Operador de adição
+            ('MINUS', r'-'),                      # Operador de subtração
+            ('TIMES', r'\*'),                     # Operador de multiplicação
+            ('DIVIDE', r'/'),                     # Operador de divisão
+            ('EQ', r'=='),                        # Igualdade
+            ('NE', r'!='),                        # Diferente
+            ('GT', r'>'),                         # Maior que
+            ('GE', r'>='),                        # Maior ou igual
+            ('LT', r'<'),                         # Menor que
+            ('LE', r'<='),                        # Menor ou igual
+            ('AND', r'&&'),                       # E lógico
+            ('OR', r'\|\|'),                      # Ou lógico
+            ('NOT', r'not'),                      # Negação lógica
+            ('IF', r'if'),                        # Palavra-chave if
+            ('ELSE', r'else'),                    # Palavra-chave else
+            ('WHILE', r'while'),                  # Palavra-chave while
+            ('RETURN', r'return'),                # Palavra-chave return
+            ('PRINT', r'print'),                  # Palavra-chave print
+            ('VOID', r'void'),                    # Palavra-chave void
+            ('INT', r'int'),                      # Palavra-chave int
+            ('BOOL', r'bool'),                    # Palavra-chave bool
+            ('TRUE', r'true'),                    # Palavra-chave true
+            ('FALSE', r'false'),                  # Palavra-chave false
+            ('PROC', r'prc'),                     # Palavra-chave prc
+            ('FUNC', r'fun'),                     # Palavra-chave fun
+            ('SKIP', r'[ \t]+'),                  # Espaços e tabulações
+            ('NEWLINE', r'\n'),                   # Quebras de linha
+            ('NUMBER', r'\d+'),                   # Inteiros
+            ('ID', r'[a-zA-Z_][a-zA-Z_0-9]*'),    # Identificadores
+            ('MISMATCH', r'.'),                   # Qualquer outro caractere
+        ]
+        self.tok_regex = '|'.join('(?P<%s>%s)' % pair for pair in self.token_specification)
+        self.get_token = re.compile(self.tok_regex).match
+
+    def tokenize(self):
+        line_start = 0
+        match = self.get_token(self.code)
+        while match is not None:
+            typ = match.lastgroup
+            if typ == 'NEWLINE':
+                line_start = match.end()
+                self.current_line += 1
+            elif typ == 'SKIP':
+                pass
+            elif typ == 'ID':
+                val = match.group(typ)
+                if val in {'int', 'bool', 'void', 'true', 'false', 'if', 'else', 'while', 'return', 'print', 'prc', 'fun'}:
+                    typ = val.upper()
+                else:
+                    self.symbol_table.add_symbol(val, self.current_line)
+                self.tokens.append(Token(typ, val, self.current_line))
+            elif typ != 'MISMATCH':
+                val = match.group(typ)
+                self.tokens.append(Token(typ, val, self.current_line))
+            else:
+                raise RuntimeError(f'{match.group(typ)!r} inesperado na linha {self.current_line}')
+            match = self.get_token(self.code, match.end())
+
+    def print_tokens(self):
+        print("Lista de Tokens:")
+        for token in self.tokens:
+            print(token)
+
+    def print_symbol_table(self):
+        print("Tabela de Símbolos:")
+        for name, attributes in self.symbol_table.symbols.items():
+            print(f"{name}: {attributes}")
+
+# Exemplo de uso
+if __name__ == '__main__':
+    code = '''
+    int x, y;
+    bool z;
+
+    int soma(int a, int b) {
+        int resultado;
+        resultado = a + b;
+        return resultado;
+    }
+    '''
+    lexer = Lexer(code)
+    lexer.tokenize()
+    lexer.print_tokens()
+    lexer.print_symbol_table()
