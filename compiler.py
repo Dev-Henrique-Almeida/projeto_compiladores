@@ -15,8 +15,8 @@ class Compiler:
         self.lexer.print_symbol_table()
 
         self.parser = Parser(self.lexer.tokens)
-        self.parser.parse()
-        self.parser.print_parsing_steps()
-
+        ast = self.parser.parse()
+        """ self.parser.print_parsing_steps() """
+        self.parser.print_ast(ast)
 
         print("Compilação bem sucedida")
