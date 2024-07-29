@@ -328,10 +328,13 @@ if __name__ == '__main__':
     '''
     lexer = Lexer(code)
     lexer.tokenize()
-    """ lexer.print_tokens() """
-    """ lexer.print_symbol_table() """
+    lexer.print_tokens()
+    lexer.print_symbol_table()
 
     parser = Parser(lexer.tokens)
-    ast_root = parser.parse()
-    """ parser.print_parsing_steps() """
-    parser.print_ast(ast_root)
+    try:
+        ast_root = parser.parse()
+        parser.print_parsing_steps()
+        parser.print_ast(ast_root)
+    except SyntaxError as e:
+        print(e)
