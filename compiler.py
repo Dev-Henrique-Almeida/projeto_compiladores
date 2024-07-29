@@ -16,7 +16,7 @@ class Compiler:
 
         self.parser = Parser(self.lexer.tokens)
         ast = self.parser.parse()
-        """ self.parser.print_parsing_steps() """
+        self.parser.print_parsing_steps()
         self.parser.print_ast(ast)
 
         print("Compilação bem sucedida")

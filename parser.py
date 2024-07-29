@@ -313,3 +313,25 @@ class Parser:
         print(f"{indent}{node.node_type}: {node.value if node.value else ''}")
         for child in node.children:
             self.print_ast(child, level + 1)
+
+# Exemplo de uso para rodar sem precisar do main
+if __name__ == '__main__':
+    code = '''
+    int x, y, inteiro, elsewhen;
+    bool z;
+
+    int soma(int a, int b) {
+        int resultado;
+        resultado = a + b;
+        return resultado;
+    }
+    '''
+    lexer = Lexer(code)
+    lexer.tokenize()
+    """ lexer.print_tokens() """
+    """ lexer.print_symbol_table() """
+
+    parser = Parser(lexer.tokens)
+    ast_root = parser.parse()
+    """ parser.print_parsing_steps() """
+    parser.print_ast(ast_root)
