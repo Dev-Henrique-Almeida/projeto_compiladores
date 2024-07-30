@@ -16,6 +16,8 @@ class Compiler:
 
     def compile(self):
         try:
+            print(f"{Colors.GREEN}Iniciando Analisador Léxico!{Colors.RESET}")
+
             self.lexer.tokenize()
             self.lexer.print_tokens()
             self.lexer.print_symbol_table()
@@ -26,11 +28,12 @@ class Compiler:
         except Exception as e:
             print(f"{Colors.RED}Erro: {e}{Colors.RESET}")
             return  # Se ocorrer um erro no léxico, interrompe a compilação
-
+        
         try:
-            ast = self.parser.parse()
-            """ self.parser.print_parsing_steps() """
-            self.parser.print_ast(ast)
+            print(f"{Colors.GREEN}Iniciando Analisador Sintático!{Colors.RESET}")
+
+            self.parser.parse()
+            self.parser.print_parsing_steps() 
             print(f"{Colors.GREEN}Analisador Sintático bem sucedido!{Colors.RESET}")
         except SyntaxError as e:
             print(f"{Colors.RED}Erro de sintaxe: {e}{Colors.RESET}")

@@ -11,8 +11,8 @@ int funcao ( int a) {
     return c;
 }
 
-void procedimento ( int a) {
-    int c;
+void procedimento ( int a, int b) {
+    int c, d, e, f;
     c = a + 1;
     print(c);
 }

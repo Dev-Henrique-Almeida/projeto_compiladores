@@ -1,20 +1,16 @@
+# Importações necessárias
 from lexer import Lexer, Token
 from typing import List
-from ASTNode import ASTNode
 
 class Parser:
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
-        self.current_token_index = 0
-        self.parsing_steps = []
-        self.root = None
+        self.current_token_index = 0  
+        self.parsing_steps = []  
 
     def parse(self):
-        self.parsing_steps.append("Iniciando a análise sintática...")
-        self.root = self.programa()
-        self.parsing_steps.append("Análise sintática concluída com sucesso!")
-        return self.root
-
+        while self.current_token_index < len(self.tokens): 
+            self.declaracao_comando() 
     def eat(self, token_type):
         current_token = self.current_token()
         if current_token.token_type == token_type:
@@ -27,314 +23,284 @@ class Parser:
     def current_token(self):
         return self.tokens[self.current_token_index]
 
-    def programa(self):
-        self.parsing_steps.append("Analisando programa...")
-        programa_node = ASTNode("programa", line=self.current_token().line)
-        while self.current_token_index < len(self.tokens):
-            programa_node.add_child(self.declaracao_comando())
-        return programa_node
-
     def declaracao_comando(self):
         token_type = self.current_token().token_type
         self.parsing_steps.append(f"Analisando declaração/comando: {token_type}")
         if token_type in ["INT", "BOOL"]:
             if self.tokens[self.current_token_index + 2].token_type == "LPAREN":
-                return self.declaracao_funcao()
+                self.declaracao_funcao() 
             else:
-                return self.declaracao_variaveis()
+                self.declaracao_variaveis() 
         elif token_type == "VOID":
-            return self.declaracao_procedimento()
+            self.declaracao_procedimento()  
         elif token_type == "ID":
             if self.tokens[self.current_token_index + 1].token_type == "ASSIGN":
-                return self.comando_atribuicao()
+                self.comando_atribuicao() 
             elif self.tokens[self.current_token_index + 1].token_type == "LPAREN":
-                return self.chamada_funcao_ou_procedimento()
+                self.chamada_funcao_ou_procedimento() 
             else:
                 raise SyntaxError(f"Token inesperado {token_type}, esperado (INT, BOOL ou VOID) na linha {self.current_token().line}")
         elif token_type == "PRC":
-            return self.chamada_procedimento()
+            self.chamada_procedimento()  
         elif token_type == "FUN":
-            return self.chamada_funcao()
+            self.chamada_funcao() 
         elif token_type == "IF":
-            return self.comando_condicional()
+            self.comando_condicional()  
         elif token_type == "WHILE":
-            return self.comando_laco()
+            self.comando_laco()  
         elif token_type == "PRINT":
-            return self.comando_impressao()
+            self.comando_impressao()  
         elif token_type == "BREAK":
-            return self.comando_break()
+            self.comando_break() 
         elif token_type == "RETURN":
-            return self.comando_retorno()
+            self.comando_retorno() 
         else:
             raise SyntaxError(f"Token inesperado {token_type}, esperado (PRC, FUN, IF, WHILE, PRINT, BREAK ou RETURN) na linha {self.current_token().line}")
 
-
     def declaracao_variaveis(self):
+        self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando declaração de variáveis...")
-        node = ASTNode("declaracao_variaveis", line=self.current_token().line)
-        node.add_child(self.tipo())
-        node.add_child(self.lista_identificadores())
-        self.eat("SEMICOLON")
-        return node
+        self.tipo() 
+        self.lista_identificadores()   
+        self.eat("SEMICOLON")  
+        self.parsing_steps.append("}")
 
     def tipo(self):
+        
         token_type = self.current_token().token_type
         if token_type in ["INT", "BOOL"]:
             self.parsing_steps.append(f"Tipo encontrado: {token_type}")
-            token = self.eat(token_type)
-            return ASTNode("tipo", token.value, line=token.line)
+            self.eat(token_type)
         else:
             raise SyntaxError(f"Tipo de variável inválido: {self.current_token().value} na linha {self.current_token().line}")
 
     def lista_identificadores(self):
+     
         self.parsing_steps.append("Analisando lista de identificadores...")
-        node = ASTNode("lista_identificadores", line=self.current_token().line)
-        node.add_child(ASTNode("identificador", self.eat("ID").value, line=self.current_token().line))
+        self.eat("ID")   
         while self.current_token().token_type == "COMMA":
-            self.eat("COMMA")
-            node.add_child(ASTNode("identificador", self.eat("ID").value, line=self.current_token().line))
-        return node
+            self.eat("COMMA")  
+            self.eat("ID")  
 
     def declaracao_procedimento(self):
+        self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando declaração de procedimento...")
-        node = ASTNode("declaracao_procedimento", line=self.current_token().line)
         self.eat("VOID")
-        node.add_child(ASTNode("identificador", self.eat("ID").value, line=self.current_token().line))
+        self.eat("ID")  
         self.eat("LPAREN")
         if self.current_token().token_type != "RPAREN":
-            node.add_child(self.lista_parametros())
+            self.lista_parametros()  
         self.eat("RPAREN")
-        node.add_child(self.bloco())
-        return node
+        self.bloco() 
+        self.parsing_steps.append("}")
 
     def declaracao_funcao(self):
+        self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando declaração de função...")
-        node = ASTNode("declaracao_funcao", line=self.current_token().line)
-        node.add_child(self.tipo())
-        node.add_child(ASTNode("identificador", self.eat("ID").value, line=self.current_token().line))
+        self.tipo()  
+        self.eat("ID") 
         self.eat("LPAREN")
         if self.current_token().token_type != "RPAREN":
-            node.add_child(self.lista_parametros())
+            self.lista_parametros() 
         self.eat("RPAREN")
-        node.add_child(self.bloco_retorno())
-        return node
+        self.bloco_retorno()
+        self.parsing_steps.append("}")
 
     def lista_parametros(self):
         self.parsing_steps.append("Analisando lista de parâmetros...")
-        node = ASTNode("lista_parametros", line=self.current_token().line)
-        node.add_child(self.parametro())
+        self.parametro()  
         while self.current_token().token_type == "COMMA":
             self.eat("COMMA")
-            node.add_child(self.parametro())
-        return node
+            self.parametro()  
 
     def parametro(self):
         self.parsing_steps.append("Analisando parâmetro...")
-        node = ASTNode("parametro", line=self.current_token().line)
-        node.add_child(self.tipo())
-        node.add_child(ASTNode("identificador", self.eat("ID").value, line=self.current_token().line))
-        return node
+        self.tipo() 
+        self.eat("ID") 
 
     def bloco(self):
         self.parsing_steps.append("Analisando bloco...")
-        node = ASTNode("bloco", line=self.current_token().line)
-        self.eat("LBRACE")
+        self.eat("LBRACE") 
         while self.current_token().token_type != "RBRACE":
-            node.add_child(self.declaracao_comando())
-        self.eat("RBRACE")
-        return node
+            self.declaracao_comando()  
+        self.eat("RBRACE")  
 
     def bloco_retorno(self):
         self.parsing_steps.append("Analisando bloco com retorno...")
-        node = ASTNode("bloco_retorno", line=self.current_token().line)
         self.eat("LBRACE")
         while self.current_token().token_type != "RBRACE":
             if self.current_token().token_type == "RETURN":
-                node.add_child(self.comando_retorno())
+                self.comando_retorno()  
             else:
-                node.add_child(self.declaracao_comando())
+                self.declaracao_comando()  
         self.eat("RBRACE")
-        return node
 
     def comando_atribuicao(self):
+        self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando comando de atribuição...")
-        node = ASTNode("comando_atribuicao", line=self.current_token().line)
-        node.add_child(ASTNode("identificador", self.eat("ID").value, line=self.current_token().line))
+        self.eat("ID")  
         self.eat("ASSIGN")
-        node.add_child(self.expressao())
+        self.expressao()  
         self.eat("SEMICOLON")
-        return node
+        self.parsing_steps.append("}")
 
     def chamada_funcao_ou_procedimento(self):
+        self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando chamada de função ou procedimento...")
-        node = ASTNode("chamada_funcao_ou_procedimento", line=self.current_token().line)
-        node.add_child(ASTNode("identificador", self.eat("ID").value, line=self.current_token().line))
+        self.eat("ID")  
         self.eat("LPAREN")
         if self.current_token().token_type != "RPAREN":
-            node.add_child(self.lista_argumentos())
+            self.lista_argumentos() 
         self.eat("RPAREN")
         self.eat("SEMICOLON")
-        return node
+        self.parsing_steps.append("}")
 
     def chamada_procedimento(self):
+        self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando chamada de procedimento...")
-        node = ASTNode("chamada_procedimento", line=self.current_token().line)
         self.eat("PRC")
-        node.add_child(ASTNode("identificador", self.eat("ID").value, line=self.current_token().line))
+        self.eat("ID") 
         self.eat("LPAREN")
         if self.current_token().token_type != "RPAREN":
-            node.add_child(self.lista_argumentos())
+            self.lista_argumentos() 
         self.eat("RPAREN")
         self.eat("SEMICOLON")
-        return node
+        self.parsing_steps.append("}")
 
     def chamada_funcao(self):
+        self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando chamada de função...")
-        node = ASTNode("chamada_funcao", line=self.current_token().line)
         self.eat("FUN")
-        node.add_child(ASTNode("identificador", self.eat("ID").value, line=self.current_token().line))
+        self.eat("ID")  
         self.eat("LPAREN")
         if self.current_token().token_type != "RPAREN":
-            node.add_child(self.lista_argumentos())
+            self.lista_argumentos() 
         self.eat("RPAREN")
-        return node
+        self.parsing_steps.append("}")
 
     def lista_argumentos(self):
         self.parsing_steps.append("Analisando lista de argumentos...")
-        node = ASTNode("lista_argumentos", line=self.current_token().line)
-        node.add_child(self.expressao())
+        self.expressao()  
         while self.current_token().token_type == "COMMA":
             self.eat("COMMA")
-            node.add_child(self.expressao())
-        return node
+            self.expressao()  
 
     def comando_condicional(self):
+        self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando comando condicional...")
-        node = ASTNode("comando_condicional", line=self.current_token().line)
         self.eat("IF")
         self.eat("LPAREN")
-        node.add_child(self.expressao_booleana())
+        self.expressao_booleana()  
         self.eat("RPAREN")
-        node.add_child(self.bloco())
+        self.bloco()  
         if self.current_token().token_type == "ELSE":
             self.eat("ELSE")
-            node.add_child(self.bloco())
-        return node
+            self.bloco() 
+        self.parsing_steps.append("}")
 
     def comando_laco(self):
+        self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando comando de laço...")
-        node = ASTNode("comando_laco", line=self.current_token().line)
         self.eat("WHILE")
         self.eat("LPAREN")
-        node.add_child(self.expressao_booleana())
+        self.expressao_booleana() 
         self.eat("RPAREN")
-        node.add_child(self.bloco())
-        return node
+        self.bloco() 
+        self.parsing_steps.append("}")
 
     def comando_impressao(self):
+        self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando comando de impressão...")
-        node = ASTNode("comando_impressao", line=self.current_token().line)
         self.eat("PRINT")
         self.eat("LPAREN")
-        node.add_child(self.expressao())
+        self.expressao()  
         self.eat("RPAREN")
         self.eat("SEMICOLON")
-        return node
+        self.parsing_steps.append("}")
 
     def comando_retorno(self):
+        self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando comando de retorno...")
-        node = ASTNode("comando_retorno", line=self.current_token().line)
         self.eat("RETURN")
-        node.add_child(self.expressao())
+        self.expressao()  
         self.eat("SEMICOLON")
-        return node
+        self.parsing_steps.append("}")
 
     def comando_break(self):
+        self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando comando de break...")
-        node = ASTNode("comando_break", line=self.current_token().line)
         self.eat("BREAK")
         self.eat("SEMICOLON")
-        return node
+        self.parsing_steps.append("}")
 
     def expressao(self):
-        return self.expressao_booleana()
+        self.expressao_booleana()
 
     def expressao_booleana(self):
-        node = ASTNode("expressao_booleana", line=self.current_token().line)
-        node.add_child(self.expressao_aritmetica())
+        self.expressao_aritmetica()  
         while self.current_token().token_type in ["EQ", "NE", "GT", "GE", "LT", "LE"]:
-            operator_node = ASTNode(self.eat(self.current_token().token_type).token_type, line=self.current_token().line)
-            operator_node.add_child(self.expressao_aritmetica())
-            node.add_child(operator_node)
-        return node
+            self.eat(self.current_token().token_type)  
+            self.expressao_aritmetica() 
 
     def expressao_aritmetica(self):
-        node = ASTNode("expressao_aritmetica", line=self.current_token().line)
-        node.add_child(self.termo())
+        self.termo()
         while self.current_token().token_type in ["PLUS", "MINUS"]:
-            operator_node = ASTNode(self.eat(self.current_token().token_type).token_type, line=self.current_token().line)
-            operator_node.add_child(self.termo())
-            node.add_child(operator_node)
-        return node
+            self.eat(self.current_token().token_type) 
+            self.termo() 
 
     def termo(self):
-        node = ASTNode("termo", line=self.current_token().line)
-        node.add_child(self.fator())
+        
+        self.fator() 
         while self.current_token().token_type in ["TIMES", "DIVIDE"]:
-            operator_node = ASTNode(self.eat(self.current_token().token_type).token_type, line=self.current_token().line)
-            operator_node.add_child(self.fator())
-            node.add_child(operator_node)
-        return node
+            self.eat(self.current_token().token_type) 
+            self.fator()  
 
     def fator(self):
+        
         current_token = self.current_token()
         if current_token.token_type == "ID":
-            return ASTNode("identificador", self.eat("ID").value, line=current_token.line)
+            self.eat("ID")  
         elif current_token.token_type == "NUMBER":
-            return ASTNode("numero", self.eat("NUMBER").value, line=current_token.line)
+            self.eat("NUMBER") 
         elif current_token.token_type in ["TRUE", "FALSE"]:
-            return ASTNode("booleano", self.eat(current_token.token_type).value, line=current_token.line)
+            self.eat(current_token.token_type)  
         elif current_token.token_type == "LPAREN":
             self.eat("LPAREN")
-            expr_node = self.expressao()
+            self.expressao()  
             self.eat("RPAREN")
-            return expr_node
         elif current_token.token_type == "FUN":
-            return self.chamada_funcao()
+            self.chamada_funcao() 
         else:
             raise SyntaxError(f"Esperado valor (ID, NUMBER, TRUE, FALSE ou expressão), mas encontrado {self.current_token().token_type} `{self.current_token().value}` na linha {current_token.line}")
-    
+
     def print_parsing_steps(self):
         print("Etapas da análise sintática:")
+        indent = 0
         for step in self.parsing_steps:
-            print(step)
-
-    def print_ast(self, node, level=0):
-        indent = "  " * level
-        print(f"{indent}{node.node_type}: {node.value if node.value else ''} (linha {node.line})")
-        for child in node.children:
-            self.print_ast(child, level + 1)
+            if step == "{":
+                print("  " * indent + step)
+                indent += 1
+            elif step == "}":
+                indent -= 1
+                print("  " * indent + step)
+            else:
+                print("  " * indent + step)
 
 # Exemplo de uso para rodar sem precisar do main
 if __name__ == '__main__':
-    code = ''' int x, y, inteiro, elsewhen;
-    bool z;
-
-    int soma(int a, int b) {
-        int resultado;
-        resultado = a + b;
-        return resultado;
-    }
+    code = '''
+        int a, b;
+        print(a == b);
+        print(a + b);
     '''
-    lexer = Lexer(code)
-    lexer.tokenize()
-    lexer.print_tokens()
-    # lexer.print_symbol_table()
+    lexer = Lexer(code)  
+    lexer.tokenize()  
+    # lexer.print_tokens() 
+    # lexer.print_symbol_table() 
 
-    parser = Parser(lexer.tokens)
+    parser = Parser(lexer.tokens) 
     try:
-        ast_root = parser.parse()
-        # parser.print_parsing_steps()
-        parser.print_ast(ast_root)
+        parser.parse()  
+        parser.print_parsing_steps()  
     except SyntaxError as e:
-        print(e)
+        print(e) 
