@@ -83,7 +83,7 @@ class Parser:
             token = self.eat(token_type)
             return ASTNode("tipo", token.value, line=token.line)
         else:
-            raise SyntaxError(f"Tipo de variável inválido: {self.current_token().value}")
+            raise SyntaxError(f"Tipo de variável inválido: {self.current_token().value} na linha {self.current_token().line}")
 
     def lista_identificadores(self):
         self.parsing_steps.append("Analisando lista de identificadores...")
@@ -328,12 +328,12 @@ if __name__ == '__main__':
     lexer = Lexer(code)
     lexer.tokenize()
     lexer.print_tokens()
-    """ lexer.print_symbol_table() """
+    # lexer.print_symbol_table()
 
     parser = Parser(lexer.tokens)
     try:
         ast_root = parser.parse()
-        """ parser.print_parsing_steps() """
+        # parser.print_parsing_steps()
         parser.print_ast(ast_root)
     except SyntaxError as e:
         print(e)
