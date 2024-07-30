@@ -1,4 +1,3 @@
-# Importações necessárias
 from lexer import Lexer, Token
 from typing import List
 
@@ -39,7 +38,7 @@ class Parser:
             elif self.tokens[self.current_token_index + 1].token_type == "LPAREN":
                 self.chamada_funcao_ou_procedimento() 
             else:
-                raise SyntaxError(f"Token inesperado {token_type}, esperado (INT, BOOL ou VOID) na linha {self.current_token().line}")
+                raise SyntaxError(f"Token inesperado `{token_type}`, esperado (INT, BOOL ou VOID) na linha {self.current_token().line}")
         elif token_type == "PRC":
             self.chamada_procedimento()  
         elif token_type == "FUN":
@@ -66,16 +65,14 @@ class Parser:
         self.parsing_steps.append("}")
 
     def tipo(self):
-        
         token_type = self.current_token().token_type
         if token_type in ["INT", "BOOL"]:
             self.parsing_steps.append(f"Tipo encontrado: {token_type}")
             self.eat(token_type)
         else:
-            raise SyntaxError(f"Tipo de variável inválido: {self.current_token().value} na linha {self.current_token().line}")
+            raise SyntaxError(f"Tipo de variável inválido: '{self.current_token().value}' na linha {self.current_token().line}. Esperado INT ou BOOL.")
 
     def lista_identificadores(self):
-     
         self.parsing_steps.append("Analisando lista de identificadores...")
         self.eat("ID")   
         while self.current_token().token_type == "COMMA":
@@ -249,14 +246,12 @@ class Parser:
             self.termo() 
 
     def termo(self):
-        
         self.fator() 
         while self.current_token().token_type in ["TIMES", "DIVIDE"]:
             self.eat(self.current_token().token_type) 
             self.fator()  
 
     def fator(self):
-        
         current_token = self.current_token()
         if current_token.token_type == "ID":
             self.eat("ID")  
@@ -304,3 +299,4 @@ if __name__ == '__main__':
         parser.print_parsing_steps()  
     except SyntaxError as e:
         print(e) 
+
