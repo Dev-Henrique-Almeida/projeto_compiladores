@@ -10,6 +10,7 @@ class Parser:
     def parse(self):
         while self.current_token_index < len(self.tokens): 
             self.declaracao_comando() 
+            
     def eat(self, token_type):
         current_token = self.current_token()
         if current_token.token_type == token_type:
