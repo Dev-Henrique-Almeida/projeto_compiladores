@@ -6,11 +6,12 @@ class Parser:
         self.tokens = tokens
         self.current_token_index = 0  
         self.parsing_steps = []  
+        self.current_function_type = None  # Para rastrear o tipo da função atual
 
     def parse(self):
         while self.current_token_index < len(self.tokens): 
             self.declaracao_comando() 
-            
+
     def eat(self, token_type):
         current_token = self.current_token()
         if current_token.token_type == token_type:
@@ -70,6 +71,7 @@ class Parser:
         if token_type in ["INT", "BOOL"]:
             self.parsing_steps.append(f"Tipo encontrado: {token_type}")
             self.eat(token_type)
+            return token_type  # Retorna o tipo para uso posterior
         else:
             raise SyntaxError(f"Tipo de variável inválido: '{self.current_token().value}' na linha {self.current_token().line}. Esperado INT ou BOOL.")
 
@@ -89,19 +91,22 @@ class Parser:
         if self.current_token().token_type != "RPAREN":
             self.lista_parametros()  
         self.eat("RPAREN")
-        self.bloco() 
+        self.current_function_type = "VOID"  # Função atual é VOID
+        self.bloco()
+        self.current_function_type = None  # Resetar após processar
         self.parsing_steps.append("}")
 
     def declaracao_funcao(self):
         self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando declaração de função...")
-        self.tipo()  
+        self.current_function_type = self.tipo()  # Salvar o tipo da função atual
         self.eat("ID") 
         self.eat("LPAREN")
         if self.current_token().token_type != "RPAREN":
             self.lista_parametros() 
         self.eat("RPAREN")
         self.bloco_retorno()
+        self.current_function_type = None  # Resetar após processar
         self.parsing_steps.append("}")
 
     def lista_parametros(self):
@@ -120,18 +125,25 @@ class Parser:
         self.parsing_steps.append("Analisando bloco...")
         self.eat("LBRACE") 
         while self.current_token().token_type != "RBRACE":
+            if self.current_token().token_type == "RETURN":
+                if self.current_function_type == "VOID":
+                    raise SyntaxError(f"Comando 'return' não permitido em função VOID na linha {self.current_token().line}")
             self.declaracao_comando()  
         self.eat("RBRACE")  
 
     def bloco_retorno(self):
         self.parsing_steps.append("Analisando bloco com retorno...")
         self.eat("LBRACE")
+        has_return = False
         while self.current_token().token_type != "RBRACE":
             if self.current_token().token_type == "RETURN":
-                self.comando_retorno()  
+                has_return = True
+                self.comando_retorno()
             else:
                 self.declaracao_comando()  
         self.eat("RBRACE")
+        if self.current_function_type in ["INT", "BOOL"] and not has_return:
+            raise SyntaxError(f"Função do tipo {self.current_function_type} deve ter um comando 'return' na linha {self.current_token().line}")
 
     def comando_atribuicao(self):
         self.parsing_steps.append("{")
@@ -220,6 +232,8 @@ class Parser:
         self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando comando de retorno...")
         self.eat("RETURN")
+        if self.current_function_type == "VOID":
+            raise SyntaxError(f"Comando 'return' não permitido em função VOID na linha {self.current_token().line}")
         self.expressao()  
         self.eat("SEMICOLON")
         self.parsing_steps.append("}")
@@ -285,9 +299,16 @@ class Parser:
 # Exemplo de uso para rodar sem precisar do main
 if __name__ == '__main__':
     code = '''
-        int a, b;
-        print(a == b);
-        print(a + b);
+    int x, y, inteiro, elsewhen;
+    bool z;
+
+    int soma(int a, int b) {
+        int resultado;
+        resultado = a + b;
+        return resultado;
+    }
+
+   
     '''
     lexer = Lexer(code)  
     lexer.tokenize()  
@@ -299,5 +320,4 @@ if __name__ == '__main__':
         parser.parse()  
         parser.print_parsing_steps()  
     except SyntaxError as e:
-        print(e) 
-
+        print(e)
