@@ -328,7 +328,7 @@ if __name__ == '__main__':
     lexer = Lexer(code)
     lexer.tokenize()
     lexer.print_tokens()
-    lexer.print_symbol_table()
+    """ lexer.print_symbol_table() """
 
     parser = Parser(lexer.tokens)
     try:

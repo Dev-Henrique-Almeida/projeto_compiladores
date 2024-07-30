@@ -14,4 +14,5 @@ def main(file):
         print(f"Erro: {e}")
 
 if __name__ == "__main__":
-    main("codigo.txt")
+    main("tests/codigo.txt")
+
