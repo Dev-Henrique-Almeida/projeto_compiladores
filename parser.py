@@ -22,7 +22,7 @@ class Parser:
             self.current_token_index += 1
             return current_token
         else:
-            raise SyntaxError(f"Esperado token {token_type}, mas encontrado {current_token.token_type} na linha {current_token.line}")
+            raise SyntaxError(f"Esperado token {token_type}, mas encontrado {current_token.token_type} `{current_token.value}` na linha {current_token.line}")
 
     def current_token(self):
         return self.tokens[self.current_token_index]
@@ -50,7 +50,7 @@ class Parser:
             elif self.tokens[self.current_token_index + 1].token_type == "LPAREN":
                 return self.chamada_funcao_ou_procedimento()
             else:
-                raise SyntaxError(f"Token inesperado {token_type} na linha {self.current_token().line}")
+                raise SyntaxError(f"Token inesperado {token_type}, esperado (INT, BOOL ou VOID) na linha {self.current_token().line}")
         elif token_type == "PRC":
             return self.chamada_procedimento()
         elif token_type == "FUN":
@@ -66,7 +66,8 @@ class Parser:
         elif token_type == "RETURN":
             return self.comando_retorno()
         else:
-            raise SyntaxError(f"Token inesperado {token_type} na linha {self.current_token().line}")
+            raise SyntaxError(f"Token inesperado {token_type}, esperado (PRC, FUN, IF, WHILE, PRINT, BREAK ou RETURN) na linha {self.current_token().line}")
+
 
     def declaracao_variaveis(self):
         self.parsing_steps.append("Analisando declaração de variáveis...")
@@ -301,8 +302,8 @@ class Parser:
         elif current_token.token_type == "FUN":
             return self.chamada_funcao()
         else:
-            raise SyntaxError(f"Fator inválido: {self.current_token().value} na linha {current_token.line}")
-
+            raise SyntaxError(f"Esperado valor (ID, NUMBER, TRUE, FALSE ou expressão), mas encontrado {self.current_token().token_type} `{self.current_token().value}` na linha {current_token.line}")
+    
     def print_parsing_steps(self):
         print("Etapas da análise sintática:")
         for step in self.parsing_steps:
