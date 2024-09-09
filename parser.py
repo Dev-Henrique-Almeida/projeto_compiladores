@@ -71,7 +71,7 @@ class Parser:
         if token_type in ["INT", "BOOL"]:
             self.parsing_steps.append(f"Tipo encontrado: {token_type}")
             self.eat(token_type)
-            return token_type  # Retorna o tipo para uso posterior
+            return token_type  
         else:
             raise SyntaxError(f"Tipo de variável inválido: '{self.current_token().value}' na linha {self.current_token().line}. Esperado INT ou BOOL.")
 
@@ -91,22 +91,22 @@ class Parser:
         if self.current_token().token_type != "RPAREN":
             self.lista_parametros()  
         self.eat("RPAREN")
-        self.current_function_type = "VOID"  # Função atual é VOID
+        self.current_function_type = "VOID"  
         self.bloco()
-        self.current_function_type = None  # Resetar após processar
+        self.current_function_type = None  
         self.parsing_steps.append("}")
 
     def declaracao_funcao(self):
         self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando declaração de função...")
-        self.current_function_type = self.tipo()  # Salvar o tipo da função atual
+        self.current_function_type = self.tipo()  
         self.eat("ID") 
         self.eat("LPAREN")
         if self.current_token().token_type != "RPAREN":
             self.lista_parametros() 
         self.eat("RPAREN")
         self.bloco_retorno()
-        self.current_function_type = None  # Resetar após processar
+        self.current_function_type = None 
         self.parsing_steps.append("}")
 
     def lista_parametros(self):
@@ -148,11 +148,19 @@ class Parser:
     def comando_atribuicao(self):
         self.parsing_steps.append("{")
         self.parsing_steps.append("Analisando comando de atribuição...")
+
         self.eat("ID")  
-        self.eat("ASSIGN")
-        self.expressao()  
-        self.eat("SEMICOLON")
+        self.eat("ASSIGN") 
+
+        if self.current_token().token_type == "FUN":
+            self.eat("FUN") 
+            self.chamada_funcao()  
+        else:
+            self.expressao()  
+
+        self.eat("SEMICOLON") 
         self.parsing_steps.append("}")
+
 
     def chamada_funcao_ou_procedimento(self):
         self.parsing_steps.append("{")
@@ -178,22 +186,29 @@ class Parser:
         self.parsing_steps.append("}")
 
     def chamada_funcao(self):
-        self.parsing_steps.append("{")
-        self.parsing_steps.append("Analisando chamada de função...")
-        self.eat("FUN")
+        self.parsing_steps.append("Analisando chamada de função com 'fun'...")
+        
         self.eat("ID")  
-        self.eat("LPAREN")
+        self.eat("LPAREN") 
+
         if self.current_token().token_type != "RPAREN":
             self.lista_argumentos() 
-        self.eat("RPAREN")
+
+        self.eat("RPAREN")  
         self.parsing_steps.append("}")
 
+
     def lista_argumentos(self):
+        """
+        Verifica a lista de argumentos de uma função (ex: funcao(a, b))
+        """
         self.parsing_steps.append("Analisando lista de argumentos...")
-        self.expressao()  
+        self.expressao()  # Analisando o primeiro argumento
+
         while self.current_token().token_type == "COMMA":
-            self.eat("COMMA")
-            self.expressao()  
+            self.eat("COMMA")  # Verifica a vírgula ','
+            self.expressao()  # Verifica o próximo argumento
+
 
     def comando_condicional(self):
         self.parsing_steps.append("{")
@@ -269,19 +284,21 @@ class Parser:
     def fator(self):
         current_token = self.current_token()
         if current_token.token_type == "ID":
-            self.eat("ID")  
+            self.eat("ID")
         elif current_token.token_type == "NUMBER":
-            self.eat("NUMBER") 
+            self.eat("NUMBER")
+        elif current_token.token_type == "STRING":  # Adicionar suporte para strings
+            self.eat("STRING")
         elif current_token.token_type in ["TRUE", "FALSE"]:
-            self.eat(current_token.token_type)  
+            self.eat(current_token.token_type)
         elif current_token.token_type == "LPAREN":
             self.eat("LPAREN")
-            self.expressao()  
+            self.expressao()
             self.eat("RPAREN")
         elif current_token.token_type == "FUN":
-            self.chamada_funcao() 
+            self.chamada_funcao()
         else:
-            raise SyntaxError(f"Esperado valor (ID, NUMBER, TRUE, FALSE ou expressão), mas encontrado {self.current_token().token_type} `{self.current_token().value}` na linha {current_token.line}")
+            raise SyntaxError(f"Esperado valor (ID, NUMBER, TRUE, FALSE, STRING ou expressão), mas encontrado {self.current_token().token_type} `{self.current_token().value}` na linha {current_token.line}")
 
     def print_parsing_steps(self):
         print("Etapas da análise sintática:")
