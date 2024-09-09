@@ -1,0 +1,32 @@
+int a, b;
+bool c;
+
+a = 10;
+b = 20;
+c = false;
+
+int soma(int x, int y) {
+    int resultado;
+    resultado = x + y;
+    return resultado;
+}
+
+void imprimeMensagem() {
+    print(Hello);
+}
+
+prc imprimeMensagem();
+
+if (a < b) {
+    c = true;
+    a = fun soma(a, b);
+    print(a);
+}
+
+while (c == true) {
+    a = a - 1;
+    
+    if (a <= 10) {
+        break;
+    }
+}

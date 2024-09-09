@@ -11,11 +11,22 @@ int funcao ( int a) {
     return c;
 }
 
-void procedimento ( int a) {
-    int c;
-    c = a + 1;
+
+void procedimento ( int a, int b) {
+    int c, d, e, f;
+    c = a + 1 / 1 * 2;
     print(c);
 }
+
+while (c == true){
+    b = b + 1;
+    
+    if (b <= 5) {
+        break;
+    }
+}
+
+
 
 prc procedimento(a, b);
 
@@ -25,12 +36,7 @@ if (c == true) {
 
     print(b);
 }
-
-while (c == true){
-    b = b + 1;
-    
-    if (b <= 5) {
-        break;
-    }
-
+else {
+    print(a);
 }
+
