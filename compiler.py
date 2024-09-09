@@ -37,8 +37,9 @@ class Compiler:
         try:
             print(f"{Colors.GREEN}Iniciando Analisador Sintático!{Colors.RESET}")
 
-            self.parser.parse()
-            self.parser.print_parsing_steps()
+            ast_root = self.parser.parse() # arvore retornado pelo parser
+            print(ast_root) 
+
             print(f"{Colors.GREEN}Analisador Sintático bem sucedido!{Colors.RESET}")
         except SyntaxError as e:
             print(f"{Colors.RED}Erro de sintaxe: {e}{Colors.RESET}")
@@ -51,7 +52,7 @@ class Compiler:
         try:
             print(f"{Colors.GREEN}Iniciando Analisador Semântico!{Colors.RESET}")
 
-            self.semantic_analyzer = SemanticAnalyzer(self.lexer.tokens, self.lexer.symbol_table)
+            self.semantic_analyzer = SemanticAnalyzer(ast_root, self.lexer.symbol_table)
             self.semantic_analyzer.analyze()
 
             if self.semantic_analyzer.errors:

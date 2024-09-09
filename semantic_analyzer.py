@@ -1,16 +1,13 @@
+from ast_node import ASTNode  
 class SemanticAnalyzer:
-    def __init__(self, tokens, symbol_table):
-        self.tokens = tokens
+    def __init__(self, ast_root, symbol_table):
+        self.ast_root = ast_root  
         self.symbol_table = symbol_table
         self.errors = []
-        self.current_token_index = 0
 
     def analyze(self):
-
-        while self.current_token_index < len(self.tokens):
-            token = self.tokens[self.current_token_index]
-            self.check_token(token)
-            self.current_token_index += 1
+        print("Iniciando a análise semântica...")  
+        self.visit(self.ast_root) 
 
         if self.errors:
             print("Erros Semânticos:")
@@ -19,144 +16,66 @@ class SemanticAnalyzer:
         else:
             print("Análise Semântica concluída sem erros.")
 
-    def check_token(self, token):
+    def visit(self, node):
+        if not isinstance(node, ASTNode):
+            return  
 
-        if token.token_type in ["INT", "BOOL", "VOID"]:
-            self.declare_variables(token)
-
-        elif token.token_type == "ID":
-            symbol = self.symbol_table.get_symbol(token.value)
-            if symbol is None:
-                self.errors.append(f"Erro: A variável ou função '{token.value}' foi usada antes de ser declarada na linha {token.line}.")
-            elif symbol.get("type") == "undefined":
-                self.errors.append(f"Erro: A variável ou função '{token.value}' foi usada sem um tipo definido na linha {token.line}.")
-
-        elif token.token_type == "ASSIGN":
-            self.check_assignment(token)
-
-    def declare_variables(self, type_token):
-
-        self.current_token_index += 1 
-        while self.current_token().token_type == "ID":
-            var_token = self.current_token()
-            name = var_token.value
-            print(f"Declarando variável '{name}' com tipo '{type_token.token_type.lower()}'")
-
-            if self.current_token_index + 1 < len(self.tokens):
-                next_token = self.tokens[self.current_token_index + 1]
-                if next_token.token_type == "LPAREN":
-                    self.declare_function(type_token, var_token)
-                    break
-
-            if name in self.symbol_table.symbols:
-                self.symbol_table.symbols[name]['type'] = type_token.token_type.lower()
-            else:
-                self.symbol_table.symbols[name] = {
-                    "type": type_token.token_type.lower(),
-                    "value": None,
-                    "scope": "global",
-                    "line": var_token.line,
-                    "column": var_token.column
-                }
-
-            self.current_token_index += 1  
-            if self.current_token().token_type == "SEMICOLON":
-                break
-            elif self.current_token().token_type == "COMMA":
-                self.current_token_index += 1  
-
-    def declare_function(self, type_token, function_token):
-
-        print(f"Declarando função '{function_token.value}' com tipo '{type_token.token_type.lower()}'")
-        self.symbol_table.symbols[function_token.value] = {
-            "type": type_token.token_type.lower(),
-            "parameters": []
-        }
-
-        self.current_token_index += 2  
-
-        while self.current_token().token_type != "RPAREN":
-            param_type = self.current_token()
-            self.current_token_index += 1  
-            param_name = self.current_token()
-
-            print(f"Registrando parâmetro '{param_name.value}' com tipo '{param_type.token_type.lower()}' para a função '{function_token.value}'")
-            self.symbol_table.symbols[function_token.value]["parameters"].append({
-                "name": param_name.value,
-                "type": param_type.token_type.lower()
-            })
-
-            if param_name.value in self.symbol_table.symbols:
-                self.symbol_table.symbols[param_name.value]['type'] = param_type.token_type.lower()
-            else:
-                self.symbol_table.symbols[param_name.value] = {
-                    "type": param_type.token_type.lower(),
-                    "value": None,
-                    "scope": "local",
-                    "line": param_name.line,
-                    "column": param_name.column
-                }
-
-            self.current_token_index += 1  
-            if self.current_token().token_type == "COMMA":
-                self.current_token_index += 1  
-
-    def check_assignment(self, token):
-
-        var_name_token = self.tokens[self.current_token_index - 1]
-        if var_name_token.token_type == "ID":
-            var_symbol = self.symbol_table.get_symbol(var_name_token.value)
-            if var_symbol:
-                assigned_value_token = self.tokens[self.current_token_index + 1]
-
-                if assigned_value_token.token_type == "FUN":
-                    function_token = self.tokens[self.current_token_index + 2]
-                    self.check_function_call(var_name_token, function_token)
-
-                elif assigned_value_token.token_type == "ID":
-                    assigned_symbol = self.symbol_table.get_symbol(assigned_value_token.value)
-                    if assigned_symbol and var_symbol["type"] != assigned_symbol["type"]:
-                        self.errors.append(f"Erro: Atribuição inválida entre tipos '{var_symbol['type']}' e '{assigned_symbol['type']}' na linha {token.line}.")
-                elif var_symbol["type"] == "int" and assigned_value_token.token_type != "NUMBER":
-                    self.errors.append(f"Erro: Atribuição inválida para a variável '{var_name_token.value}' do tipo 'int' na linha {token.line}.")
-                elif var_symbol["type"] == "bool" and assigned_value_token.token_type not in ["TRUE", "FALSE"]:
-                    self.errors.append(f"Erro: Atribuição inválida para a variável '{var_name_token.value}' do tipo 'bool' na linha {token.line}.")
+        if node.value:
+            print(f"- {node.node_type} com valor: {node.value}")
         else:
-            raise RuntimeError(f"Atribuição inesperada na linha {token.line}")
+            print(f"- {node.node_type} ")
 
-    def check_function_call(self, var_name_token, fun_token):
+        if node.node_type == "variable_declaration":
+            self.declare_variable(node)
+        elif node.node_type == "function_declaration":
+            self.declare_function(node)
+        elif node.node_type == "assignment":
+            self.check_assignment(node)
 
-        function_symbol = self.symbol_table.get_symbol(fun_token.value)  # Verifica o nome real da função
-        if not function_symbol:
-            self.errors.append(f"Erro: Função '{fun_token.value}' chamada na linha {fun_token.line} não foi declarada.")
-            return
+        for child in node.children:
+            self.visit(child)
 
-        if function_symbol["type"] != self.symbol_table.get_symbol(var_name_token.value)["type"]:
-            self.errors.append(f"Erro: O tipo de retorno da função '{fun_token.value}' é incompatível com o tipo da variável '{var_name_token.value}' na linha {fun_token.line}.")
+    def declare_variable(self, node):
+        var_name = node.value
+        var_type = node.children[0].value 
 
-        self.current_token_index += 3  
+        print(f"Declarando variável '{var_name}' com tipo '{var_type}'")
 
-        params_passed = []
-        while self.current_token().token_type != "RPAREN":  
-            if self.current_token().token_type not in ["COMMA", "LPAREN", "RPAREN"]:
-                params_passed.append(self.current_token())
-            self.current_token_index += 1
-
-        expected_params = function_symbol.get("parameters", [])
-        if len(params_passed) != len(expected_params):
-            self.errors.append(f"Erro: Número de parâmetros incorreto para a função '{fun_token.value}' na linha {fun_token.line}. Esperado {len(expected_params)}, mas recebido {len(params_passed)}.")
+        if var_name in self.symbol_table:
+            self.errors.append(f"Erro: Variável '{var_name}' já foi declarada.")
         else:
-            for param, passed_param in zip(expected_params, params_passed):
-                passed_param_type = "undefined"
-                if passed_param.token_type == "NUMBER":
-                    passed_param_type = "int"
-                elif passed_param.token_type == "ID":
-                    param_symbol = self.symbol_table.get_symbol(passed_param.value)
-                    if param_symbol:
-                        passed_param_type = param_symbol["type"]
+            self.symbol_table[var_name] = {"type": var_type, "scope": "local"}
 
-                if passed_param_type != param["type"]:
-                    self.errors.append(f"Erro: Tipo incompatível para o parâmetro '{param['name']}' da função '{fun_token.value}' na linha {fun_token.line}. Esperado '{param['type']}', mas recebido '{passed_param_type}'.")
+    def declare_function(self, node):
+        func_name = node.value
+        func_type = node.children[0].value  
+        params = node.children[1].children  
 
-    def current_token(self):
-        return self.tokens[self.current_token_index]
+        print(f"Declarando função '{func_name}' com tipo '{func_type}'")
+
+        if func_name in self.symbol_table:
+            self.errors.append(f"Erro: Função '{func_name}' já foi declarada.")
+        else:
+            self.symbol_table[func_name] = {"type": func_type, "parameters": []}
+
+        for param in params:
+            param_name = param.value
+            param_type = param.children[0].value
+            print(f"Registrando parâmetro '{param_name}' com tipo '{param_type}'")
+
+            self.symbol_table[func_name]["parameters"].append({"name": param_name, "type": param_type})
+
+    def check_assignment(self, node):
+        var_name = node.children[0].value  
+        assigned_value = node.children[1].value  
+
+        print(f"Atribuindo valor '{assigned_value}' à variável '{var_name}'")
+
+        if var_name not in self.symbol_table:
+            self.errors.append(f"Erro: Variável '{var_name}' não foi declarada.")
+        else:
+            var_type = self.symbol_table[var_name]["type"]
+            if var_type == "int" and not isinstance(assigned_value, int):
+                self.errors.append(f"Erro: Atribuição inválida para a variável '{var_name}' do tipo 'int'.")
+            elif var_type == "bool" and assigned_value not in ["TRUE", "FALSE"]:
+                self.errors.append(f"Erro: Atribuição inválida para a variável '{var_name}' do tipo 'bool'.")

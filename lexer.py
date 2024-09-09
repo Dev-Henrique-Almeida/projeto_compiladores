@@ -27,6 +27,9 @@ class SymbolTable:
 
     def get_symbol(self, name: str):
         return self.symbols.get(name)
+    
+    def items(self):
+        return self.symbols.items()
 
     def __repr__(self):
         return f"SymbolTable({self.symbols})"
