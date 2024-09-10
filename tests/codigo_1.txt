@@ -12,7 +12,7 @@ int soma(int x, int y) {
 }
 
 void imprimeMensagem() {
-    print(Hello);
+    print("Hello");
 }
 
 prc imprimeMensagem();

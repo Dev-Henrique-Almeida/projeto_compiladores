@@ -27,6 +27,9 @@ class SymbolTable:
 
     def get_symbol(self, name: str):
         return self.symbols.get(name)
+    
+    def items(self):
+        return self.symbols.items()
 
     def __repr__(self):
         return f"SymbolTable({self.symbols})"
@@ -74,6 +77,7 @@ class Lexer:
             ('FUN', r'\bfun\b'),                    # Palavra-chave fun
             ('SKIP', r'[ \t]+'),                    # Espaços e tabulações
             ('NEWLINE', r'\n'),                     # Quebras de linha
+            ('STRING', r'"(?:\\.|[^"\\])*"'),       # Literais de string
             ('NUMBER', r'\d+'),                     # Inteiros
             ('ID', r'[a-zA-Z_][a-zA-Z_0-9]*'),      # Identificadores
             ('MISMATCH', r'.'),                     # Qualquer outro caractere
