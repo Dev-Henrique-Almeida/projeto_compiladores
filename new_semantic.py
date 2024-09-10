@@ -349,7 +349,7 @@ if __name__ == '__main__':
         ast_root = parser.parse()  
         print(ast_root) 
 
-        semantic_analyzer = SemanticAnalyzer(ast_root)
+        semantic_analyzer = SemanticAnalyzer(ast_root, {})
         semantic_analyzer.analyze()
         print("Análise semântica concluída com sucesso.")
     except (SyntaxError, SemanticError) as e:
