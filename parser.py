@@ -25,12 +25,15 @@ class Parser:
             raise SyntaxError(f"Esperado token {token_type}, mas encontrado {current_token.token_type} `{current_token.value}` na linha {current_token.line}")
 
     def current_token(self):
-        return self.tokens[self.current_token_index]
-
+        if self.current_token_index < len(self.tokens):
+            return self.tokens[self.current_token_index]
+        else:
+            return Token("EOF", "EOF", 0, 0)
     def declaracao_comando(self):
         token_type = self.current_token().token_type
         self.parsing_steps.append(f"Analisando declaração/comando: {token_type}")
         if token_type in ["INT", "BOOL"]:
+            #checar len antes de pegar
             if self.tokens[self.current_token_index + 2].token_type == "LPAREN":
                 return self.declaracao_funcao()
             else:

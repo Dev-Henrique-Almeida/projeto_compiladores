@@ -1,6 +1,6 @@
 from lexer import Lexer
 from parser import Parser
-from semantic_analyzer import SemanticAnalyzer  # Supondo que semantic_analyzer está implementado
+from new_semantic import SemanticAnalyzer  # Supondo que semantic_analyzer está implementado
 
 class Colors:
     RED = '\033[91m'
@@ -52,7 +52,7 @@ class Compiler:
         try:
             print(f"{Colors.GREEN}Iniciando Analisador Semântico!{Colors.RESET}")
 
-            self.semantic_analyzer = SemanticAnalyzer(ast_root, self.lexer.symbol_table)
+            self.semantic_analyzer = SemanticAnalyzer(ast_root, {})
             self.semantic_analyzer.analyze()
 
             if self.semantic_analyzer.errors:
