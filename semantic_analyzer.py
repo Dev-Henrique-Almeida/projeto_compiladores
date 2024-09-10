@@ -7,7 +7,7 @@ class SemanticAnalyzer:
 
     def analyze(self):
         print("Iniciando a análise semântica...")  
-        self.visit(self.ast_root) 
+        self.visit(0, self.ast_root) 
 
         if self.errors:
             print("Erros Semânticos:")
@@ -16,14 +16,15 @@ class SemanticAnalyzer:
         else:
             print("Análise Semântica concluída sem erros.")
 
-    def visit(self, node):
+    def visit(self, level, node):
         if not isinstance(node, ASTNode):
             return  
 
+        tabs = level * '    '
         if node.value:
-            print(f"- {node.node_type} com valor: {node.value}")
+            print(f"{tabs} - {node.node_type} com valor: {node.value}")
         else:
-            print(f"- {node.node_type} ")
+            print(f"{tabs} - {node.node_type} ")
 
         if node.node_type == "variable_declaration":
             self.declare_variable(node)
@@ -33,7 +34,8 @@ class SemanticAnalyzer:
             self.check_assignment(node)
 
         for child in node.children:
-            self.visit(child)
+            new_level = level + 1
+            self.visit(new_level, child)
 
     def declare_variable(self, node):
         var_name = node.value
