@@ -33,8 +33,9 @@ class ThreeAddressCodeGenerator:
             self.indentation_level += 1
             for param in node.children[1:-1]:
                 if param.node_type == "Parametro":
-                    param_name = param.value
-                    self.instructions.append(f"{self.indent()}param {param_name}")
+                  """   param_name = param.value
+                    self.instructions.append(f"{self.indent()}param {param_name}") """
+                pass
             self.traverse(node.children[-1])
             self.indentation_level -= 1
             self.instructions.append(f"{self.indent()}function {func_name} end")
@@ -44,9 +45,10 @@ class ThreeAddressCodeGenerator:
             self.instructions.append(f"{self.indent()}procedure {proc_name} begin")
             self.indentation_level += 1
             for param in node.children[1:-1]:
-                if param.node_type == "Parametro":
+                """ if param.node_type == "Parametro":
                     param_name = param.value
-                    self.instructions.append(f"{self.indent()}param {param_name}")
+                    self.instructions.append(f"{self.indent()}param {param_name}") """
+                pass
             self.traverse(node.children[-1])
             self.indentation_level -= 1
             self.instructions.append(f"{self.indent()}procedure {proc_name} end")
@@ -90,10 +92,11 @@ class ThreeAddressCodeGenerator:
             self.instructions.append(f"{self.indent()}{temp} = call {node.value}, {', '.join(args)}")
             return temp
         elif node.node_type == "ChamadaProcedimento":
-            self.instructions.append(f"\n{self.indent()}# Início da chamada de 'prc'")
+            self.instructions.append(f"\n{self.indent()}# Início da chamada de '{node.value}'")
             args = [self.traverse(arg) for arg in node.children]
             self.instructions.append(f"{self.indent()}call {node.value}, {', '.join(args)}")
-            self.instructions.append(f"{self.indent()}# Fim da chamada de 'prc'")
+            self.instructions.append(f"{self.indent()}# Fim da chamada de '{node.value}'")
+
 
         elif node.node_type == "ExpressaoBooleana":
             left = self.traverse(node.children[0])
