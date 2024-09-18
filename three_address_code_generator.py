@@ -90,8 +90,11 @@ class ThreeAddressCodeGenerator:
             self.instructions.append(f"{self.indent()}{temp} = call {node.value}, {', '.join(args)}")
             return temp
         elif node.node_type == "ChamadaProcedimento":
+            self.instructions.append(f"\n{self.indent()}# Início da chamada de 'prc'")
             args = [self.traverse(arg) for arg in node.children]
             self.instructions.append(f"{self.indent()}call {node.value}, {', '.join(args)}")
+            self.instructions.append(f"{self.indent()}# Fim da chamada de 'prc'")
+
         elif node.node_type == "ExpressaoBooleana":
             left = self.traverse(node.children[0])
             right = self.traverse(node.children[1])

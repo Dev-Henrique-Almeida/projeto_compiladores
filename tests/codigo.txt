@@ -31,12 +31,13 @@ while (c == true){
 
 prc procedimento(a, b);
 
-if (c == true) {
-    b = fun funcao(1);
-
-    print(b);
-}
-else {
-    print(a);
+bool condicao;
+while (condicao == true) { 
+    if (c == true) {
+        b = fun funcao(1);
+        print(b);
+    } else {
+        print(a);
+    }
 }
 
